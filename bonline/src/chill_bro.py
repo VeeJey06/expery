@@ -76,7 +76,6 @@ class Gui(Main):
         self.main.overrideredirect(True)
         self.main.wm_attributes('-topmost', 'true')
         self.main.wm_attributes('-disabled', 'true')
-        self.main.wm_attributes("-transparent", "")
         self.make_center(self.main)
         self.showImg()
         self.main.mainloop()
@@ -104,12 +103,13 @@ class Gui(Main):
 
 if __name__ == '__main__':
     obj = Main()
+    log = open("debug.txt", "a")
+    sys.stdout = log
     try:
         app = Application(backend='uia').connect(title_re=".*py\.exe*.", found_index=0, timeout=3)
         app.top_window().minimize()
     except Exception as e:
         print(e)
-
     while True:
         ret = obj.mov_cur()
         if ret == 1:
