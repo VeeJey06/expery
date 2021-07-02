@@ -1,12 +1,8 @@
-#!/usr/bin/env python
-# -*- encoding:utf-8-*-
-# -*- coding: utf-8 -*-
-
 import xml.etree.ElementTree as ET
 import csv
 
 #Full path of input xml file
-input_file = './sam.xml'
+input_file = r'C:\Users\SManigan\Desktop\New Text Document.xml'
 
 #Full path of outpur csv file
 output_file = 'output.csv'
@@ -35,7 +31,10 @@ for row in rows:
                     fields.append(list(column.attrib.keys())[0])
             except IndexError:
                 fields.append(column.tag.replace('{'+namespace['wd']+'}', ''))
-        value = column.text.strip()
+        try:
+            value = column.text.strip()
+        except AttributeError:
+            pass
         if not value:
             try:
                 value = list(column.attrib.values())[0]
