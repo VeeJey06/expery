@@ -1,13 +1,10 @@
-from typing import Sequence
 import xml.etree.ElementTree as ET
 import datetime
 import pandas as pd
 
-#Full path of input xml file
-input_file = r'C:\Users\SManigan\Desktop\New Text Document.xml'
 
-#Full path of outpur csv file
-output_file = 'output.csv'
+input_file=r'C:\Users\SManigan\Desktop\New Text Document.xml'
+output_file=r'output.csv')
 
 s = datetime.datetime.today()
 root = ET.parse(input_file)
@@ -36,7 +33,7 @@ for row in rows:
                 fields.append(parent + '_' + field)
         except IndexError:
             fields.append(column.tag.replace('{'+namespace['wd']+'}', ''))
-    print('Added %s columns' %str(len(fields)))
+    # print('Added %s columns' %str(len(fields)))
 fields = list(set(fields))
 fields.sort()
 
@@ -44,9 +41,10 @@ rows = root.iterfind('wd:Report_Entry', namespaces=namespace)
 for row in rows:
     columns = list(row.iter())
     parent = ''
-    columns = list(row.iter())
     field = ''
+    prev_col = ''
     record = []
+    unpivot_rows = []
     for column in columns:
         if 'Report_Entry' in column.tag:
             continue
@@ -72,12 +70,23 @@ for row in rows:
                 pass
         while True:
             try:
-                record[fields.index(field)] = value
+                if record[fields.index(field)] != '' and (prev_col == field or prev_col ==''):
+                    prev_col = field
+                    unpivot_rows.append([i for i in record])
+                else:
+                    record[fields.index(field)] = value
+                if unpivot_rows:
+                    for unpivot_row in unpivot_rows:
+                        if unpivot_row[fields.index(field)] == '' or unpivot_row[fields.index(field)] == record[fields.index(field)]:
+                            unpivot_row[fields.index(field)] = value
                 break
             except IndexError:
                 record.append('')
+                for unpivot_row in unpivot_rows:
+                    unpivot_row.append('')
     data.append(record)
-    print('Added %s records' %str(len(data)))
+    data.extend(unpivot_rows) if unpivot_rows else ''
+    # print('Added %s records' %str(len(data)))
 
 df = pd.DataFrame(data)
 df.astype(str)
